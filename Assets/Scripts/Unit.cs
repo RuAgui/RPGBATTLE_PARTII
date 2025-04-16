@@ -35,6 +35,7 @@ public class Unit : MonoBehaviour
     //Point representa la posicion del enemigo
     public IEnumerator Attacking(Vector3 point)
     {
+        Debug.Log("ME MUEVO!");
         anim.SetBool("Moving", true);
         while (Vector3.Distance(transform.position, point) >= offset)
         {
@@ -42,6 +43,8 @@ public class Unit : MonoBehaviour
             yield return null;
         }
         //Ha llegado hasta donde esta su rival
+        Debug.Log("TE PEGO!");
+
         anim.SetTrigger("Attack"); //ejecuto la anim de ataque
         yield return new WaitForSeconds(timeAnimationAttack);  //espero el tiempo de la anim de ataque
     }

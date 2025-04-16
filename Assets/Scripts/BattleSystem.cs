@@ -30,7 +30,7 @@ public class BattleSystem : MonoBehaviour
         playerUnit = player.GetComponent<Unit>();
 
         GameObject enemy = Instantiate(enemyPrefab, enemyInitPos.position, new Quaternion());
-        playerUnit = enemy.GetComponent<Unit>();
+        enemyUnit = enemy.GetComponent<Unit>();
 
         battleHUD.SetHUD(playerUnit);
         battleHUD.SetHP(playerUnit.currentHP, playerUnit.maxHP);
