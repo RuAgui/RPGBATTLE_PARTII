@@ -62,6 +62,7 @@ public class BattleSystem : MonoBehaviour
         Debug.Log("TURNO DE ZACK");
         battleHUD.panelButtons.SetActive(true);
     }
+    #region Methods Buttons
 
     public void OnAttackButtton()
     {
@@ -72,7 +73,26 @@ public class BattleSystem : MonoBehaviour
 
     public void OnHealButton()
     {
+        if (battleState != BattleState.PlayerTurn)
+            return;
+        StartCoroutine(nameof(PlayerHeal));
+    }
 
+    #endregion
+
+    #region Player Actions
+
+    IEnumerator PlayerHeal()
+    {
+        ResetAttackPlayer();
+        playerUnit.Heal(playerUnit.healAmount);
+        //Actualiza valores HP
+        battleHUD.SetHP(playerUnit.currentHP, playerUnit.maxHP);
+        yield return new WaitForSeconds(2);
+
+        battleState = BattleState.EnemyTurn;
+        Debug.Log("Turno del enemigo");
+        StartCoroutine(nameof(EnemyAttack));
     }
 
     IEnumerator PlayerAttack()
@@ -99,6 +119,7 @@ public class BattleSystem : MonoBehaviour
             battleState = BattleState.EnemyTurn;
             Debug.Log("Turno del enemigo");
             //llamada a la corrutina del enemigo
+            StartCoroutine(nameof(EnemyAttack));
         }
 
     }
@@ -108,5 +129,40 @@ public class BattleSystem : MonoBehaviour
         battleHUD.panelButtons.SetActive(false);
         battleHUD.timeSlider.value = 0;
     }
+
+
+    #endregion
+
+    #region Enemy Actions
+
+    IEnumerator EnemyAttack()
+    {
+        //El enemigo ataca al rival
+        yield return StartCoroutine(enemyUnit.Attacking(playerUnit.transform.position));
+
+        //¿Ha muerto elrival?
+        bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
+        //Actualiza valores HP
+        battleHUD.SetHP(playerUnit.currentHP, playerUnit.maxHP);
+
+        yield return StartCoroutine(enemyUnit.MovingToInitPosition());
+
+        Debug.Log("El enemigo ataca: " + playerUnit.currentHP);
+
+        if (isDead)
+        {
+            battleState = BattleState.Lost;
+            Debug.Log("Perdiste");
+        }
+        else
+        {
+            battleState = BattleState.PlayerTurn;
+            Debug.Log("Turno del player");
+            StartCoroutine(nameof(PlayerTime));
+        }
+
+    }
+    #endregion
+
 
 }
